@@ -1,0 +1,1114 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <algorithm>
+using namespace std;
+
+class Student {
+private:
+    string StudentName;
+    int StudentId;
+    double StudentGPA;
+    string StudentDepartment;
+
+public:
+    Student(){
+        StudentId=0;
+        StudentName="";
+        StudentGPA=(0.0);
+        StudentDepartment="";
+
+    }
+    Student(int id , const string& name, double gpa, const string& department)
+            : StudentName(name), StudentId(id), StudentGPA(gpa), StudentDepartment(department) {}
+
+    void setName (string name) {
+        this->StudentName = name;
+    }
+    void setID (int id) {
+        this->StudentId = id;
+    }
+    void setGPA (double gpa) {
+        this->StudentGPA = gpa;
+    }
+    void setDep (string dep) {
+        this->StudentDepartment = dep;
+    }
+
+
+    // Getter functions
+    string getN() const {
+        return StudentName;
+    }
+    int getId() const {
+        return StudentId;
+    }
+    double getGPA() const {
+        return StudentGPA;
+    }
+    string getDep() const {
+        return StudentDepartment;
+    }
+
+    // Overloaded comparison operators
+    bool operator==(const Student& other) const {
+        return StudentId == other.StudentId;
+    }
+
+    bool operator!=(const Student& other) const {
+        return StudentId != other.StudentId;
+    }
+
+    bool operator<(const Student& other) const {
+        return StudentId < other.StudentId;
+    }
+
+    bool operator>(const Student& other) const {
+        return StudentId > other.StudentId;
+    }
+
+    bool operator<=(const Student& other) const {
+        return StudentId <= other.StudentId;
+    }
+
+    bool operator>=(const Student& other) const {
+        return StudentId >= other.StudentId;
+    }
+
+    friend ostream& operator<<(ostream& osstream, const Student& s) {
+        osstream << "Name: " << s.StudentName << "\n"
+                 << "ID: " << s.StudentId << "\n"
+                 << "GPA: " << s.StudentGPA << "\n"
+                 << "Department: " << s.StudentDepartment << "\n";
+        return osstream;
+    }
+
+};
+
+
+class BST_Node{
+protected:
+    Student student;
+    BST_Node* left;
+    BST_Node* right;
+public:
+    BST_Node()
+    {
+        left=0;
+        right=0;
+    }
+    BST_Node(Student s)
+    {
+        this->left=0;
+        this->right=0;
+        this->student.setName(s.getN());
+        this->student.setID(s.getId());
+        this->student.setGPA(s.getGPA());
+        this->student.setDep(s.getDep());
+    }
+    BST_Node* get_left()
+    {
+        return left;
+    }
+
+    BST_Node* get_right()
+    {
+        return right;
+    }
+
+    Student get_student()
+    {
+        return student;
+    }
+
+    void set_right(BST_Node* node)
+    {
+        this->right = node;
+    }
+    void set_left(BST_Node* node)
+    {
+        this->left = node;
+    }
+};
+
+class BST{
+
+    BST_Node* root;
+    int sz;
+
+    void inorder_traversal(BST_Node* root)
+    {
+        if (root!=0)
+        {
+            inorder_traversal(root->get_left());
+            cout << root->get_student().getId() << ' ' << root->get_student().getN() << ' ' << root->get_student().getDep() << ' ' << root->get_student().getGPA() << '\n';
+            inorder_traversal(root->get_right());
+        }
+    }
+
+    BST_Node* locate_student(Student s)
+    {
+        BST_Node* tempptr=root;
+        while(tempptr!=0)
+        {
+            if(s.getId() == tempptr->get_student().getId())
+            {
+                return tempptr;
+            }
+            else if(s.getId() > tempptr->get_student().getId())
+            {
+                tempptr=tempptr->get_right();
+            }
+            else
+            {
+                tempptr=tempptr->get_left();
+            }
+        }
+        return nullptr;
+
+    }
+
+
+public:
+
+    BST()
+    {
+        root=0;
+        sz=0;
+    }
+
+
+    void add_student(Student s)
+    {
+        sz++;
+        BST_Node* tempptr = root;
+        BST_Node* before = 0;
+        while(tempptr!=0)
+        {
+            before = tempptr;
+            if(s.getId() > tempptr->get_student().getId())
+            {
+                tempptr=tempptr->get_right();
+            }
+            else
+            {
+                tempptr=tempptr->get_left();
+            }
+        }
+
+        if (root==0) {
+            root = new BST_Node(s);
+        }
+        else if(s.getId() >= before->get_student().getId())
+        {
+            before->set_right(new BST_Node(s));
+        }
+        else
+        {
+            before->set_left(new BST_Node(s));
+
+        }
+    }
+
+    bool student_exists(int id)
+    {
+        BST_Node* tempptr=root;
+        while(tempptr!=0)
+        {
+            if(id== tempptr->get_student().getId())
+            {
+                return true;
+            }
+            else if(id> tempptr->get_student().getId())
+            {
+                tempptr=tempptr->get_right();
+            }
+            else
+            {
+                tempptr=tempptr->get_left();
+            }
+        }
+        return false;
+    }
+    Student search_student(int id)
+    {
+        BST_Node* tempptr=root;
+        while(tempptr!=0)
+        {
+            if(id== tempptr->get_student().getId())
+            {
+                return tempptr->get_student();
+            }
+            else if(id> tempptr->get_student().getId())
+            {
+                tempptr=tempptr->get_right();
+            }
+            else
+            {
+                tempptr=tempptr->get_left();
+            }
+        }
+
+    }
+
+    BST_Node* min(BST_Node* node)
+    {
+        BST_Node* mynode = node;
+        while(mynode&&mynode->get_left()!=NULL)
+        {
+            mynode=mynode->get_left();
+        }
+        return mynode;
+    }
+
+    BST_Node* remove_student(BST_Node* root, Student student)
+    {
+        sz--;
+        int id = student.getId();
+        if (root == NULL)
+            return root;
+
+        if (id < root->get_student().getId())
+            root->set_left(remove_student(root->get_left(), student));
+
+        else if (id > root->get_student().getId())
+            root->set_right(remove_student(root->get_right(), student));
+        else {
+            if (root->get_left() == NULL and root->get_right() == NULL)
+                return NULL;
+            else if (root->get_left() == NULL) {
+                BST_Node* temp = root->get_right();
+                delete root;
+                return temp;
+            }
+            else if (root->get_right() == NULL) {
+                BST_Node *temp = root->get_left();
+                delete root;
+                return temp;
+            }
+            BST_Node* temp = min(root->get_right());
+            root->get_student().setID(temp->get_student().getId());
+            root->set_right(remove_student(root->get_right(), temp->get_student()));
+        }
+        return root;
+    }
+
+    void print()
+    {
+        inorder_traversal(root);
+    }
+
+    BST_Node* get_root()
+    {
+        return root;
+    }
+
+    void displayBSTMenu(vector<Student>myvect) {
+        int choice;
+        static int ds=0;
+        static int ai=0;
+        static int cs=0;
+        static int is=0;
+        static int it=0;
+
+        for (auto i :myvect) {
+            if (i.getDep() == "CS")
+            {
+                cs++;
+            }
+            else if(i.getDep() == "DS")
+            {
+                ds++;
+            }
+            else if(i.getDep() == "IS")
+            {
+                is++;
+            }
+            else if(i.getDep() == "AI")
+            {
+                ai++;
+            }
+            else
+            {
+                it++;
+            }
+            this->add_student(i);
+        }
+
+        do {
+            cout << "==== BST ====" << endl;
+
+            cout << "BST Menu:" << endl;
+            cout << "1. Add student" << endl;
+            cout << "2. Remove student" << endl;
+            cout << "3. Search student" << endl;
+            cout << "4. Print All (sorted by ID)" << endl;
+            cout << "5. Exit" << endl;
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            switch (choice) {
+                case 1: {
+                    cout << "Please enter the student's ID" << endl;
+                    int id;
+                    cin >> id;
+                    cout << "Please enter the student's Name" << endl;
+                    string name;
+                    cin.ignore();
+                    getline(cin,name);
+                    cout << "Please enter the student's GPA" << endl;
+                    double GPA;
+                    cin >> GPA;
+                    cout << "Please enter the student's Department" << endl;
+                    string dep;
+                    cin >> dep;
+                    if (dep=="CS")
+                    {
+                        cs++;
+                    }
+                    else if(dep=="DS")
+                    {
+                        ds++;
+                    }
+                    else if(dep=="IS")
+                    {
+                        is++;
+                    }
+                    else if(dep=="AI")
+                    {
+                        ai++;
+                    }
+                    else
+                    {
+                        it++;
+                    }
+                    Student student(id, name, GPA, dep);
+                    this->add_student(student);
+                    break;
+                }
+                case 2: {
+                    cout << "Please enter the student's ID" << endl;
+                    int id;
+                    cin >> id;
+                    if(student_exists(id))
+                    {
+                        if (this->search_student(id).getDep() == "CS")
+                        {
+                            cs--;
+                        }
+                        else if(this->search_student(id).getDep() == "DS")
+                        {
+                            ds--;
+                        }
+                        else if(this->search_student(id).getDep() == "IS")
+                        {
+                            is--;
+                        }
+                        else if(this->search_student(id).getDep() == "AI")
+                        {
+                            ai--;
+                        }
+                        else
+                        {
+                            it--;
+                        }
+                        this->remove_student(this->root, this->search_student(id));
+                    }
+                    else
+                    {
+                        cout << "\nStudent is not found!\n";
+                    }
+
+                }
+                    break;
+                case 3: {
+                    cout << "Please enter the student's ID" << endl;
+                    int id;
+                    cin >> id;
+                    if(student_exists(id))
+                    {
+                        Student student = this->search_student(id);
+                        cout << "\nThe student is found!\n" << "\nName : " << student.getN() << "\nDepartment : " << student.getDep() << "\nID : " << student.getId() << "\nGPA : " << student.getGPA() << '\n';
+                    }
+                    else
+                    {
+                        cout << "\nStudent is not found!\n";
+                    }
+                    break;
+                }
+                case 4: {
+                    this->print();
+
+                    cout << "\nNumber of students in IS department is: " << is << endl;
+                    cout << "\nNumber of students in DS department is: " << ds << endl;
+                    cout << "\nNumber of students in AI department is: " << ai << endl;
+                    cout << "\nNumber of students in CS department is: " << cs << endl;
+                    cout << "\nNumber of students in IT department is: \n" << it << endl;
+                    break;
+                }
+                case 5: {
+                    exit(0);
+                    break;
+                }
+                default: {
+                    cout << "Invalid choice. Please try again." << endl;
+                    break;
+                }
+            }
+
+            cout << endl;
+        } while (choice != 5);
+    }
+
+
+
+};
+
+class MaxHeap {
+
+    vector<Student> heap;
+
+    void heapifyUp(int index) {
+        if (index <= 0) {
+            return;
+        }
+
+        int parent = (index - 1) / 2;
+        if (heap[parent].getGPA() < heap[index].getGPA()) {
+            swap(heap[parent], heap[index]);
+            heapifyUp(parent);
+        }
+    }
+
+    void heapifyDown(int index) {
+        int leftChild = 2 * index + 1;
+        int rightChild = 2 * index + 2;
+        int largest = index;
+
+        if (leftChild < heap.size() && heap[leftChild].getGPA() > heap[largest].getGPA()) {
+            largest = leftChild;
+        }
+
+        if (rightChild < heap.size() && heap[rightChild].getGPA() > heap[largest].getGPA()) {
+            largest = rightChild;
+        }
+
+        if (largest != index) {
+            swap(heap[index], heap[largest]);
+            heapifyDown(largest);
+        }
+    }
+
+public:
+
+    void addStudent(Student student) {
+        heap.push_back(student);
+        heapifyUp(heap.size() - 1);
+    }
+
+    void departmentReports(){
+        int IS = 0;
+        int DS = 0;
+        int AI = 0;
+        int CS = 0;
+        int IT = 0;
+        for(Student s: heap){
+            if(s.getDep() == "IS")
+                IS+=1;
+            else if(s.getDep() == "DS")
+                DS+=1;
+            else if(s.getDep() == "AI")
+                AI+=1;
+            else if(s.getDep() == "CS")
+                CS+=1;
+            else if(s.getDep() == "IT")
+                IT+=1;
+        }
+        cout << "Number of students in IS department is: " << IS << endl;
+        cout << "Number of students in DS department is: " << DS << endl;
+        cout << "Number of students in AI department is: " << AI << endl;
+        cout << "Number of students in CS department is: " << CS << endl;
+        cout << "Number of students in IT department is: " << IT << endl;
+    }
+
+
+
+
+    void DisplayMenu(vector<Student> student){
+        int option;
+        string StudentName;
+        int StudentId;
+        double StudentGPA;
+        string StudentDepartment;
+        for(Student s: student){
+            heap.push_back(s);
+        }
+        cout << "==== Max Heap ====" << endl;
+        while (true) {
+            cout << "Choose one of the following options:" << endl;
+            cout << "1. Add student" << endl;
+            cout << "2. Print All (sorted by GPA)" << endl;
+            cout << "3. Exit" << endl;
+            cout << "Enter the number of the option: ";
+            cin >> option;
+            switch (option) {
+                case 1: {
+                    cout << "id: ";
+                    cin >> StudentId;
+                    cout << "Name: ";
+                    cin.ignore();
+                    getline(cin,StudentName);
+                    cout << "GPA: ";
+                    cin >> StudentGPA;
+                    cout << "Department: ";
+                    cin >> StudentDepartment;
+                    Student student(StudentId, StudentName, StudentGPA, StudentDepartment);
+                    this->addStudent(student);
+
+                    cout << "The student is added." << endl;
+                    break;
+                }
+                case 2: {
+                    sort(heap.begin(), heap.end(), [](const Student& a, const Student& b) {
+                        return a.getGPA() > b.getGPA();
+                    });
+
+                    for (const Student& student : heap) {
+                        cout << "[" << student.getId() << ", " << student.getN() << ", " << student.getGPA() << ", " << student.getDep() << "]" << std::endl;
+                    }
+                    this->departmentReports();
+
+                    break;
+                }
+
+                default:
+                    exit(0);
+            }
+        }
+    }
+};
+
+
+class MinHeap {
+private:
+    vector<Student> heap;
+
+    int parent(int i) { return (i - 1) / 2; }
+    int leftChild(int i) { return 2 * i + 1; }
+    int rightChild(int i) { return 2 * i + 2; }
+
+    void heapifyUp(int i) {
+        while (i > 0 && heap[parent(i)].getGPA() > heap[i].getGPA()) {
+            swap(heap[i], heap[parent(i)]);
+            i = parent(i);
+        }
+    }
+
+
+    void heapifyDown(int i) {
+        int minIndex = i;
+        int left = leftChild(i);
+        int right = rightChild(i);
+
+        if (left < heap.size() && heap[left].getGPA() < heap[minIndex].getGPA())
+            minIndex = left;
+
+        if (right < heap.size() && heap[right].getGPA() < heap[minIndex].getGPA())
+            minIndex = right;
+
+        if (i != minIndex) {
+            swap(heap[i], heap[minIndex]);
+            heapifyDown(minIndex);
+        }
+    }
+
+public:
+    void addStudent(Student student) {
+        heap.push_back(student);
+        heapifyUp(heap.size() - 1);
+    }
+
+    void departmentReports(){
+        int IS = 0;
+        int DS = 0;
+        int AI = 0;
+        int CS = 0;
+        int IT = 0;
+        for(Student s: heap){
+            if(s.getDep() == "IS")
+                IS+=1;
+            else if(s.getDep() == "DS")
+                DS+=1;
+            else if(s.getDep() == "AI")
+                AI+=1;
+            else if(s.getDep() == "CS")
+                CS+=1;
+            else if(s.getDep() == "IT")
+                IT+=1;
+        }
+        cout << "Number of students in IS department is: " << IS << endl;
+        cout << "Number of students in DS department is: " << DS << endl;
+        cout << "Number of students in AI department is: " << AI << endl;
+        cout << "Number of students in CS department is: " << CS << endl;
+        cout << "Number of students in IT department is: " << IT << endl;
+    }
+
+    void DisplayMenu(vector<Student> student){
+        int option;
+        string StudentName;
+        int StudentId;
+        double StudentGPA;
+        string StudentDepartment;
+        for(Student s: student){
+            heap.push_back(s);
+        }
+        cout << "==== Min Heap ====" << endl;
+        while (true) {
+
+            cout << "Choose one of the following options:" << endl;
+            cout << "1. Add student" << endl;
+            cout << "2. Print All (sorted by GPA)" << endl;
+            cout << "3. Exit" << endl;
+            cout << "Enter the number of the option: ";
+            cin >> option;
+            switch (option) {
+                case 1: {
+                    cout << "id: ";
+                    cin >> StudentId;
+                    cout << "Name: ";
+                    cin.ignore();
+                    getline(cin,StudentName);
+                    cout << "GPA: ";
+                    cin >> StudentGPA;
+                    cout << "Department: ";
+                    cin >> StudentDepartment;
+                    Student student(StudentId, StudentName, StudentGPA, StudentDepartment);
+                    this->addStudent(student);
+
+                    cout << "The student is added." << endl;
+                    break;
+                }
+                case 2: {
+                    sort(heap.begin(), heap.end(), [](const Student& a, const Student& b) {
+                        return a.getGPA() < b.getGPA();
+                    });
+
+                    for (const Student& student : heap) {
+                        cout << "[" << student.getId() << ", " << student.getN() << ", " << student.getGPA() << ", " << student.getDep() << "]" << std::endl;
+                    }
+
+                    this->departmentReports();
+                    break;
+                }
+
+                default:
+                    exit(0);
+            }
+        }
+    }
+};
+
+
+
+
+
+class AVLNode
+{
+public:
+    Student data;
+    AVLNode* left;
+    AVLNode* right;
+    AVLNode()
+    {
+        left = NULL;
+        right = NULL;
+    }
+};
+
+class AVL {
+public:
+    AVLNode *root;
+
+    AVL() {
+        root = NULL;
+    }
+
+    int height(AVLNode *node) {
+        int h = 0;
+        if (node != NULL) {
+            int lHeight = height(node->left);
+            int rHeight = height(node->right);
+            h = max(lHeight, rHeight) + 1;
+        }
+        return h;
+    }
+
+    int balanceFactor(AVLNode *node) {
+        int lHeight = height(node->left);
+        int rHeight = height(node->right);
+        return lHeight - rHeight;
+    }
+
+    AVLNode *rightRotate(AVLNode *node) {
+        AVLNode *temp1 = node->left;
+        AVLNode *temp2 = temp1->right;
+        // start the rotation
+        temp1->right = node;
+        node->left = temp2;
+        return temp1;
+    }
+
+    AVLNode *leftRotate(AVLNode *node) {
+        AVLNode *temp1 = node->right;
+        AVLNode *temp2 = temp1->left;
+        // start the rotation
+        temp1->left = node;
+        node->right = temp2;
+        return temp1;
+    }
+
+    AVLNode *getMin(AVLNode *node) {
+        if (node == NULL) {
+            return NULL;
+        } else if (node->left == NULL) {
+            return node;
+        } else {
+            return getMin(node->left);
+        }
+    }
+
+    AVLNode *insertStudent(AVLNode *node, Student value) {
+        if (node == NULL) {
+            node = new AVLNode();
+            node->data = value;
+            node->left = NULL;
+            node->right = NULL;
+            return node;
+        }
+        if (value <= node->data) {
+            node->left = insertStudent(node->left, value);
+        } else if (value > node->data) {
+            node->right = insertStudent(node->right, value);
+        } else {
+            return node;
+        }
+        int balFactor = balanceFactor(node);
+        // left left case
+        if (balFactor > 1 && value < node->left->data) {
+            return rightRotate(node);
+        }
+        // left right case
+        if (balFactor > 1 && value > node->left->data) {
+            node->left = leftRotate(node->left);
+            return rightRotate(node);
+        }
+
+        // right right case
+        if (balFactor < -1 && value > node->right->data) {
+            return leftRotate(node);
+        }
+
+        // right left case
+        if (balFactor < -1 && value < node->right->data) {
+            node->right = rightRotate(node->right);
+            return leftRotate(node);
+        }
+        return node;
+    }
+
+    AVLNode *DeleteStudent(AVLNode *node, int value) {
+        if (node == NULL) {
+            return node;
+        }
+        if (value < node->data.getId()) {
+            node->left = DeleteStudent(node->left, value);
+        } else if (value > node->data.getId()) {
+            node->right = DeleteStudent(node->right, value);
+        } else {
+            if (node->left == NULL && node->right == NULL) {
+                delete node;
+                node = NULL;
+            } else if (node->right == NULL) {
+                AVLNode *temp = node;
+                node = node->left;
+                delete temp;
+            } else if (node->left == NULL) {
+                AVLNode *temp = node;
+                node = node->right;
+                delete temp;
+            } else {
+                AVLNode *temp1 = getMin(node->right);
+                node->data = temp1->data;
+                node->right = DeleteStudent(node->right, temp1->data.getId());
+            }
+            return node;
+        }
+        if (node == NULL) {
+            return node;
+        }
+        int balFactor = balanceFactor(node);
+        // left left case
+        if (balFactor > 1 && value < node->left->data.getId()) {
+            return rightRotate(node);
+        }
+        // left right case
+        if (balFactor > 1 && value > node->left->data.getId()) {
+            node->left = leftRotate(node->left);
+            return rightRotate(node);
+        }
+
+        // right right case
+        if (balFactor < -1 && value > node->right->data.getId()) {
+            return leftRotate(node);
+        }
+
+        // right left case
+        if (balFactor < -1 && value < node->right->data.getId()) {
+            node->right = rightRotate(node->right);
+            return leftRotate(node);
+        }
+        return node;
+    }
+
+    AVLNode *search(AVLNode *node, int value) {
+        if (node == NULL) {
+            return NULL;
+        } else if (node->data.getId() == value) {
+            return node;
+        } else if (value <= node->data.getId()) {
+            return search(node->left, value);
+        } else if (value > node->data.getId()) {
+            return search(node->right, value);
+        }
+    }
+
+    bool exists(AVLNode *node, int value) {
+        if (node == NULL) {
+            return false;
+        } else if (node->data.getId() == value) {
+            return true;
+        } else if (value <= node->data.getId()) {
+            return search(node->left, value);
+        } else if (value > node->data.getId()) {
+            return search(node->right, value);
+        }
+    }
+
+    void PrintAll(AVLNode *node) {
+        if (node == NULL) {
+            return;
+        }
+        PrintAll(node->left);
+        cout << node->data << endl;
+        PrintAll(node->right);
+    }
+
+    void displayMenu(vector<Student> myvect) {
+
+        int choice;
+        static int ds = 0;
+        static int ai = 0;
+        static int cs = 0;
+        static int is = 0;
+        static int it = 0;
+
+        for (auto i: myvect) {
+            if (i.getDep() == "CS") {
+                cs++;
+            } else if (i.getDep() == "DS") {
+                ds++;
+            } else if (i.getDep() == "IS") {
+                is++;
+            } else if (i.getDep() == "AI") {
+                ai++;
+            } else {
+                it++;
+            }
+            //this->insertStudent(i);
+        }
+        cout << "==== AVL ====" << endl;
+        while (true) {
+            cout << "1. Add student\n";
+            cout << "2. Remove student\n";
+            cout << "3. Search student\n";
+            cout << "4. Print All (sorted by id)\n";
+            cout << "5. Exit\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            switch (choice) {
+                case 1: {
+                    int id;
+                    string name, department;
+                    double gpa;
+
+                    cout << "Enter student ID: ";
+                    cin >> id;
+                    cin.ignore();
+                    cout << "Enter student name: ";
+                    getline(cin, name);
+                    cout << "Enter student GPA: ";
+                    cin >> gpa;
+                    cin.ignore();
+                    cout << "Enter student department: ";
+                    getline(cin, department);
+                    if (department == "CS") {
+                        cs++;
+                    } else if (department == "DS") {
+                        ds++;
+                    } else if (department == "IS") {
+                        is++;
+                    } else if (department == "AI") {
+                        ai++;
+                    } else {
+                        it++;
+                    }
+
+                    Student student(id, name, gpa, department);
+                    this->root = this->insertStudent(this->root, student);
+                    cout << "Student added successfully!\n";
+                    break;
+                }
+
+                case 2: {
+                    int id;
+                    cout << "Enter student ID to remove: ";
+                    cin >> id;
+                    if (this->exists(this->root, id)) {
+                        if (this->search(this->root, id)->data.getDep() == "CS") {
+                            cs--;
+                        } else if (this->search(this->root, id)->data.getDep() == "DS") {
+                            ds--;
+                        } else if (this->search(this->root, id)->data.getDep() == "IS") {
+                            is--;
+                        } else if (this->search(this->root, id)->data.getDep() == "AI") {
+                            ai--;
+                        } else {
+                            it--;
+                        }
+                        this->root = this->DeleteStudent(this->root, id);
+                        cout << "Student removed successfully!\n";
+                        break;
+                    }
+
+                    case 3: {
+                        int id;
+                        cout << "Enter student ID to search: ";
+                        cin >> id;
+                        AVLNode *result = this->search(this->root, id);
+                        if (result != NULL) {
+                            cout << "Student found:\n";
+                            cout << result->data << endl;
+                        } else {
+                            cout << "Student not found!\n";
+                        }
+                        break;
+                    }
+
+                    case 4: {
+                        cout << "All students sorted by ID:\n";
+                        this->PrintAll(this->root);
+                        cout << "\nNumber of students in IS department is: " << is << endl;
+                        cout << "\nNumber of students in DS department is: " << ds << endl;
+                        cout << "\nNumber of students in AI department is: " << ai << endl;
+                        cout << "\nNumber of students in CS department is: " << cs << endl;
+                        cout << "\nNumber of students in IT department is: \n" << it << endl;
+                        break;
+                    }
+
+                    case 5: {
+                        exit(0);
+                        break;
+                    }
+
+                    default:
+                        cout << "Invalid choice. Please try again.\n";
+                    break;
+                }
+            }
+        }
+    }};
+
+    int main() {
+        ifstream infile("students.txt");
+        if (!infile) {
+            cerr << " file could not be opened" << endl;
+            return 1;
+        }
+        int numberOfstudents;
+        infile >> numberOfstudents;
+        vector<Student> students;
+        for (int i = 0; i < numberOfstudents; i++) {
+            int id;
+            string name, department;
+            double gpa;
+            infile >> id;
+            infile.ignore();
+            getline(infile, name);
+            infile >> gpa;
+            infile.ignore();
+            getline(infile, department);
+            Student student(id, name, gpa, department);
+            students.push_back(student);
+        }
+        infile.close();
+
+        int choice;
+
+        do {
+            cout << "Menu:" << endl;
+            cout << "1. BST" << endl;
+            cout << "2. AVL" << endl;
+            cout << "3. Min Heap" << endl;
+            cout << "4. Max Heap" << endl;
+            cout << "5. Exit Program" << endl;
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            switch (choice) {
+                case 1: {
+                    BST mybst;
+                    mybst.displayBSTMenu(students);
+                    break;
+                }
+                case 2: {
+
+                    AVL myavl;
+                    for (int i = 0; i < students.size(); i++) {
+                        myavl.root = myavl.insertStudent(myavl.root, students[i]);
+                    }
+                    myavl.displayMenu(students);
+                    break;
+                }
+                case 3: {
+                    MinHeap myminheap;
+                    myminheap.DisplayMenu(students);
+                    break;
+                }
+                case 4: {
+                    MaxHeap mymaxheap;
+                    mymaxheap.DisplayMenu(students);
+                    // Perform Max Heap operations
+                    break;
+                }
+                case 5: {
+                    cout << "Exiting program." << endl;
+                    exit(0);
+                    break;
+                }
+                default: {
+                    cout << "Invalid choice. Please try again." << endl;
+                    break;
+                }
+            }
+
+            cout << '\n';
+        } while (choice != 5);
+
+        return 0;
+    }
+
+
+
+
+
